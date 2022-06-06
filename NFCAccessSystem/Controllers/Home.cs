@@ -22,9 +22,9 @@ namespace NFCAccessSystem.Controllers
         // GET: Home
         public async Task<IActionResult> Index()
         {
-              return _context.Users != null ? 
-                          View(await _context.Users.ToListAsync()) :
-                          Problem("Entity set 'AccessSystemContext.Users'  is null.");
+            return _context.Users != null
+                ? View(await _context.Users.ToListAsync())
+                : Problem("Entity set 'AccessSystemContext.Users'  is null.");
         }
 
         // GET: Home/Details/5
@@ -61,7 +61,9 @@ namespace NFCAccessSystem.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("UserId,TagUid,Name,TotpSecret,Authorized,Admin,OfflineAuth")] User user)
+        public async Task<IActionResult> Create(
+            [Bind("UserId,TagUid,Name,TotpSecret,Authorized,Admin,OfflineAuth")]
+            User user)
         {
             if (ModelState.IsValid)
             {
@@ -69,6 +71,7 @@ namespace NFCAccessSystem.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+
             return View(user);
         }
 
@@ -85,6 +88,7 @@ namespace NFCAccessSystem.Controllers
             {
                 return NotFound();
             }
+
             return View(user);
         }
 
@@ -93,7 +97,9 @@ namespace NFCAccessSystem.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("UserId,TagUid,Name,TotpSecret,Authorized,Admin,OfflineAuth")] User user)
+        public async Task<IActionResult> Edit(int id,
+            [Bind("UserId,TagUid,Name,TotpSecret,Authorized,Admin,OfflineAuth")]
+            User user)
         {
             if (id != user.UserId)
             {
@@ -118,8 +124,10 @@ namespace NFCAccessSystem.Controllers
                         throw;
                     }
                 }
+
                 return RedirectToAction(nameof(Index));
             }
+
             return View(user);
         }
 
@@ -150,19 +158,20 @@ namespace NFCAccessSystem.Controllers
             {
                 return Problem("Entity set 'AccessSystemContext.Users'  is null.");
             }
+
             var user = await _context.Users.FindAsync(id);
             if (user != null)
             {
                 _context.Users.Remove(user);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool UserExists(int id)
         {
-          return (_context.Users?.Any(e => e.UserId == id)).GetValueOrDefault();
+            return (_context.Users?.Any(e => e.UserId == id)).GetValueOrDefault();
         }
     }
 }

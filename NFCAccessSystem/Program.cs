@@ -43,7 +43,6 @@ db.SaveChanges();
 //var otp = new Totp(base32Bytes);
 
 
-
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<AccessSystemContext>();
 // Add services to the container.
