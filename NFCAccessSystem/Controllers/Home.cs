@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using NFCAccessSystem.Data;
+using OtpNet;
 
 namespace NFCAccessSystem.Controllers
 {
@@ -47,7 +48,12 @@ namespace NFCAccessSystem.Controllers
         // GET: Home/Create
         public IActionResult Create()
         {
-            return View();
+            // pre-generate the TOTP key
+            var user = new User()
+            {
+                TotpSecret = Base32Encoding.ToString(KeyGeneration.GenerateRandomKey(20))
+            };
+            return View(user);
         }
 
         // POST: Home/Create
