@@ -4,14 +4,13 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NFCAccessSystem.Data;
-using NFCAccessSystem.Models;
 
 #nullable disable
 
 namespace NFCAccessSystem.Migrations
 {
     [DbContext(typeof(AccessSystemContext))]
-    [Migration("20220605011302_InitialCreate")]
+    [Migration("20220606062529_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -19,7 +18,7 @@ namespace NFCAccessSystem.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.5");
 
-            modelBuilder.Entity("NFCAccessSystem.DbComponent.User", b =>
+            modelBuilder.Entity("NFCAccessSystem.Data.User", b =>
                 {
                     b.Property<int>("UserId")
                         .ValueGeneratedOnAdd()
@@ -32,13 +31,15 @@ namespace NFCAccessSystem.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("OfflineAuth")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("TagUid")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("TagUid")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("TotpSecret")
                         .IsRequired()
@@ -50,6 +51,16 @@ namespace NFCAccessSystem.Migrations
                         .IsUnique();
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("NFCAccessSystem.Models.ErrorViewModel", b =>
+                {
+                    b.Property<string>("RequestId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("RequestId");
+
+                    b.ToTable("ErrorViewModel");
                 });
 #pragma warning restore 612, 618
         }
