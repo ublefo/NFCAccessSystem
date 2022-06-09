@@ -28,6 +28,9 @@ namespace NFCAccessSystem.Migrations
                     b.Property<bool>("Authorized")
                         .HasColumnType("INTEGER");
 
+                    b.Property<bool>("MostRecentTotp")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");

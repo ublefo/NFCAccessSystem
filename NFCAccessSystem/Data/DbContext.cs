@@ -31,6 +31,11 @@ public class User
     [DisplayName("Authorization")] public bool Authorized { get; set; }
     [DisplayName("Admin")] public bool Admin { get; set; }
     [DisplayName("Offline Auth")] public bool OfflineAuth { get; set; }
+
+    [DisplayName("One-time Passcode")]
+    [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter the 6-digit numeric code.")]
+    [Totp("Please enter the 6-digit numeric code.")]
+    public string MostRecentTotp { get; set; }
 }
 
 public class AccessSystemContext : DbContext
@@ -69,8 +74,44 @@ public class NfcUidAttribute : ValidationAttribute
 
     protected override ValidationResult IsValid(object value, ValidationContext validationContext)
     {
+        if (value == null)
+        {
+            return new ValidationResult("This field is required.");
+        }
+
         var uidHexStr = (string) value;
         var valid = Regex.IsMatch(uidHexStr, "[0-9A-F]{8}");
+        if (valid)
+        {
+            return ValidationResult.Success;
+        }
+        else
+        {
+            return new ValidationResult(_errorMessage);
+        }
+    }
+}
+
+// custom TOTP validator
+
+public class TotpAttribute : ValidationAttribute
+{
+    private string _errorMessage;
+
+    public TotpAttribute(string errorMessage)
+    {
+        _errorMessage = errorMessage;
+    }
+
+    protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+    {
+        if (value == null)
+        {
+            return new ValidationResult("This field is required.");
+        }
+
+        var totpStr = (string) value;
+        var valid = Regex.IsMatch(totpStr, "[0-9]{6}");
         if (valid)
         {
             return ValidationResult.Success;

@@ -30,7 +30,8 @@ namespace NFCAccessSystem.Migrations
                     TotpSecret = table.Column<string>(type: "TEXT", nullable: false),
                     Authorized = table.Column<bool>(type: "INTEGER", nullable: false),
                     Admin = table.Column<bool>(type: "INTEGER", nullable: false),
-                    OfflineAuth = table.Column<bool>(type: "INTEGER", nullable: false)
+                    OfflineAuth = table.Column<bool>(type: "INTEGER", nullable: false),
+                    MostRecentTotp = table.Column<bool>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {

@@ -10,7 +10,7 @@ using NFCAccessSystem.Data;
 namespace NFCAccessSystem.Migrations
 {
     [DbContext(typeof(AccessSystemContext))]
-    [Migration("20220606062529_InitialCreate")]
+    [Migration("20220609041402_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -28,6 +28,9 @@ namespace NFCAccessSystem.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<bool>("Authorized")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("MostRecentTotp")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")

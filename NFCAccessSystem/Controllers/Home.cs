@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using NFCAccessSystem.Data;
 using OtpNet;
+using QRCoder;
 
 namespace NFCAccessSystem.Controllers
 {
@@ -48,11 +49,22 @@ namespace NFCAccessSystem.Controllers
         // GET: Home/Create
         public IActionResult Create()
         {
-            // pre-generate the TOTP key
+            // generate the TOTP key
             var user = new User()
             {
                 TotpSecret = Base32Encoding.ToString(KeyGeneration.GenerateRandomKey(20))
             };
+
+            const string label = "";
+            const string issuer = "NFCAccessSystem";
+            var qrCodeUri =
+                $"otpauth://totp/{Uri.EscapeDataString(label)}?secret={user.TotpSecret}&issuer={Uri.EscapeDataString(issuer)}";
+            QRCodeGenerator qrGenerator = new QRCodeGenerator();
+            QRCodeData qrCodeData = qrGenerator.CreateQrCode(qrCodeUri, QRCodeGenerator.ECCLevel.Q);
+            PngByteQRCode qrCode = new PngByteQRCode(qrCodeData);
+            byte[] qrCodeAsPngByteArr = qrCode.GetGraphic(5);
+            ViewBag.QrCode = Convert.ToBase64String(qrCodeAsPngByteArr);
+
             return View(user);
         }
 
@@ -62,15 +74,38 @@ namespace NFCAccessSystem.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
-            [Bind("UserId,TagUid,Name,TotpSecret,Authorized,Admin,OfflineAuth")]
+            [Bind("UserId,TagUid,Name,TotpSecret,Admin,OfflineAuth,MostRecentTotp")]
             User user)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(user);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                var totp = new Totp(Base32Encoding.ToBytes(user.TotpSecret));
+                long timeWindowUsed;
+                if (totp.VerifyTotp(user.MostRecentTotp, out timeWindowUsed,
+                        VerificationWindow.RfcSpecifiedNetworkDelay))
+                {
+                    user.Authorized = true;
+                    _context.Add(user);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+
+                // If code verification fails, set a global warning message
+                // https://stackoverflow.com/questions/5739362/modelstate-addmodelerror-how-can-i-add-an-error-that-isnt-for-a-property/5740852#5740852
+                ModelState.AddModelError(string.Empty, "The code you entered is incorrect, please try again.");
             }
+
+
+            // return the same QR code again
+            const string label = "";
+            const string issuer = "NFCAccessSystem";
+            var qrCodeUri =
+                $"otpauth://totp/{Uri.EscapeDataString(label)}?secret={user.TotpSecret}&issuer={Uri.EscapeDataString(issuer)}";
+            var qrGenerator = new QRCodeGenerator();
+            var qrCodeData = qrGenerator.CreateQrCode(qrCodeUri, QRCodeGenerator.ECCLevel.Q);
+            var qrCode = new PngByteQRCode(qrCodeData);
+            var qrCodeAsPngByteArr = qrCode.GetGraphic(5);
+            ViewBag.QrCode = Convert.ToBase64String(qrCodeAsPngByteArr);
 
             return View(user);
         }
