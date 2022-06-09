@@ -25,17 +25,13 @@ builder.Services.AddAuthentication(BasicAuthenticationDefaults.AuthenticationSch
         {
             OnValidateCredentials = context =>
             {
-                User authenticatingUser;
                 // find user by UID
-                try
-                {
-                    authenticatingUser = db.Users.Single(u => u.TagUid == context.Username);
-                }
-                catch (Exception e)
+                User authenticatingUser = db.Users.FirstOrDefault(u => u.TagUid == context.Username);
+
+                if (authenticatingUser == null)
                 {
                     // if no user found just return
                     Console.WriteLine("Basic auth: no user found.");
-                    Console.WriteLine(e);
                     return Task.CompletedTask;
                 }
 
