@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +12,7 @@ using QRCoder;
 
 namespace NFCAccessSystem.Controllers
 {
+    [Authorize]
     public class Home : Controller
     {
         private readonly AccessSystemContext _context;
@@ -21,6 +23,7 @@ namespace NFCAccessSystem.Controllers
         }
 
         // GET: Home
+        [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
             return _context.Users != null
