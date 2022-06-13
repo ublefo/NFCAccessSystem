@@ -1,10 +1,5 @@
-using System.Configuration;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Sqlite;
 using NFCAccessSystem.Data;
-using NFCAccessSystem.Models;
 using OtpNet;
-using System.Reflection.Metadata.Ecma335;
 using System.Security.Claims;
 using idunno.Authentication.Basic;
 using Microsoft.AspNetCore.Authorization;
