@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,11 +16,14 @@ namespace NFCAccessSystem.Controllers
     [Authorize]
     public class Home : Controller
     {
+        private readonly ILogger _logger;
         private readonly AccessSystemContext _context;
+        private const string SessionUserId = "_UserId";
 
-        public Home(AccessSystemContext context)
+        public Home(AccessSystemContext context, ILogger<Home> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         // GET: Home
@@ -32,12 +36,16 @@ namespace NFCAccessSystem.Controllers
         }
 
         // GET: Home/Details/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null || _context.Users == null)
             {
                 return NotFound();
             }
+
+            // authenticated action: create a session if one does not exist
+            CreateSession();
 
             var user = await _context.Users
                 .FirstOrDefaultAsync(m => m.UserId == id);
@@ -50,8 +58,12 @@ namespace NFCAccessSystem.Controllers
         }
 
         // GET: Home/Create
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
+            // authenticated action: create a session if one does not exist
+            CreateSession();
+
             // generate the TOTP key
             var user = new User()
             {
@@ -76,6 +88,7 @@ namespace NFCAccessSystem.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create(
             [Bind("UserId,TagUid,Name,TotpSecret,Admin,OfflineAuth,MostRecentTotp")]
             User user)
@@ -114,8 +127,12 @@ namespace NFCAccessSystem.Controllers
         }
 
         // GET: Home/Edit/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
+            // authenticated action: create a session if one does not exist
+            CreateSession();
+
             if (id == null || _context.Users == null)
             {
                 return NotFound();
@@ -135,6 +152,7 @@ namespace NFCAccessSystem.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id,
             [Bind("UserId,TagUid,Name,TotpSecret,Authorized,Admin,OfflineAuth")]
             User user)
@@ -170,8 +188,12 @@ namespace NFCAccessSystem.Controllers
         }
 
         // GET: Home/Delete/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
+            // authenticated action: create a session if one does not exist
+            CreateSession();
+
             if (id == null || _context.Users == null)
             {
                 return NotFound();
@@ -190,6 +212,7 @@ namespace NFCAccessSystem.Controllers
         // POST: Home/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             if (_context.Users == null)
@@ -207,9 +230,86 @@ namespace NFCAccessSystem.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        // GET: Auth
+        [Authorize(Roles = "Admin, User")]
+        public async Task<IActionResult> Auth()
+        {
+            _logger.LogInformation("Auth API passed.");
+            return Ok();
+        }
+
+        // GET: LogOut
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> LogOut()
+        {
+            ClearSession();
+            return RedirectToAction(nameof(Index));
+        }
+
+
         private bool UserExists(int id)
         {
             return (_context.Users?.Any(e => e.UserId == id)).GetValueOrDefault();
+        }
+
+        private void CreateSession()
+        {
+            if (string.IsNullOrEmpty(HttpContext.Session.GetString(SessionUserId)))
+            {
+                ClaimsPrincipal principal = HttpContext.User;
+
+                if (null != principal) // If principal is not empty
+                {
+                    foreach (Claim claim in principal.Claims)
+                    {
+                        Console.WriteLine("CLAIM TYPE: " + claim.Type + "; CLAIM VALUE: " + claim.Value);
+                    }
+
+                    // Name here is TagUid
+                    var userTagUidFromAuth = principal.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.Name)
+                        .Value.ToString();
+                    // Look this up and map to UserId
+                    var userIdFromAuth = _context.Users.FirstOrDefault(e => e.TagUid == userTagUidFromAuth).UserId;
+
+                    HttpContext.Session.SetString(SessionUserId, userIdFromAuth.ToString());
+                    _logger.LogInformation("Session created for user {0}, Tag UID {1}", userIdFromAuth,
+                        userTagUidFromAuth);
+                }
+            }
+            else
+            {
+                _logger.LogInformation("Session already exists, not creating a new one.");
+            }
+        }
+
+        private void ClearSession()
+        {
+            if (!string.IsNullOrEmpty(HttpContext.Session.GetString(SessionUserId)))
+            {
+                ClaimsPrincipal principal = HttpContext.User;
+
+                if (null != principal) // If principal is not empty
+                {
+                    foreach (Claim claim in principal.Claims)
+                    {
+                        Console.WriteLine("CLAIM TYPE: " + claim.Type + "; CLAIM VALUE: " + claim.Value);
+                    }
+
+                    // Name here is TagUid
+                    var userTagUidFromAuth = principal.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.Name)
+                        .Value.ToString();
+                    // Look this up and map to UserId
+                    var userIdFromAuth = _context.Users.FirstOrDefault(e => e.TagUid == userTagUidFromAuth).UserId;
+
+                    HttpContext.Session.Clear();
+                    _logger.LogInformation("Session cleared for user {0}, Tag UID {1}", userIdFromAuth,
+                        userTagUidFromAuth);
+                }
+            }
+            else
+            {
+                _logger.LogInformation("There is no session to clear.");
+            }
         }
     }
 }
