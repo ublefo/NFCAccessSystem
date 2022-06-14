@@ -3,8 +3,9 @@ using OtpNet;
 using System.Security.Claims;
 using idunno.Authentication.Basic;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 
-using var db = new AccessSystemContext();
+var db = new AccessSystemContext();
 Console.WriteLine($"Database path: {db.DbPath}.");
 var currentAppConfig = new AppConfig("server-config.json");
 
@@ -308,11 +309,33 @@ if (!currentAppConfig.IsClient)
         fileDownloadName: "acs.sqlite"
     ));
 }
+else
+{
+    // only client has db refresh api
+    app.MapGet("/dbrefresh", () => RefreshDb(db));
+}
 
 // unlock api will always be available
 app.MapGet("/unlock", [Authorize(Roles = "Admin, User")]() => Results.Ok());
 
 app.Run();
+
+// method to refresh the db
+IResult RefreshDb(AccessSystemContext context)
+{
+    try
+    {
+        context.Database.CloseConnection();
+        context.Database.OpenConnection();
+        Console.WriteLine("DB refreshed!");
+        return Results.Ok();
+    }
+    catch (Exception e)
+    {
+        Console.WriteLine(e);
+        return Results.StatusCode(500);
+    }
+}
 
 public class UserTotpPair
 {
