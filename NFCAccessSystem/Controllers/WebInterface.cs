@@ -244,14 +244,6 @@ namespace NFCAccessSystem.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: Auth
-        [Authorize(Roles = "Admin, User")]
-        public async Task<IActionResult> Auth()
-        {
-            _logger.LogInformation("Auth API passed.");
-            return Ok();
-        }
-
         // GET: LogOut
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> LogOut()
