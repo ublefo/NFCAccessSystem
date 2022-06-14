@@ -9,19 +9,19 @@ using QRCoder;
 namespace NFCAccessSystem.Controllers
 {
     [Authorize]
-    public class Home : Controller
+    public class WebInterface : Controller
     {
         private readonly ILogger _logger;
         private readonly AccessSystemContext _context;
         private const string SessionUserId = "_UserId";
 
-        public Home(AccessSystemContext context, ILogger<Home> logger)
+        public WebInterface(AccessSystemContext context, ILogger<WebInterface> logger)
         {
             _context = context;
             _logger = logger;
         }
 
-        // GET: Home
+        // GET: WebInterface
         [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
@@ -30,7 +30,7 @@ namespace NFCAccessSystem.Controllers
                 : Problem("Entity set 'AccessSystemContext.Users'  is null.");
         }
 
-        // GET: Home/Details/5
+        // GET: WebInterface/Details/5
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Details(int? id)
         {
@@ -52,7 +52,7 @@ namespace NFCAccessSystem.Controllers
             return View(user);
         }
 
-        // GET: Home/Create
+        // GET: WebInterface/Create
         [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
@@ -78,7 +78,7 @@ namespace NFCAccessSystem.Controllers
             return View(user);
         }
 
-        // POST: Home/Create
+        // POST: WebInterface/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
@@ -121,7 +121,7 @@ namespace NFCAccessSystem.Controllers
             return View(user);
         }
 
-        // GET: Home/Edit/5
+        // GET: WebInterface/Edit/5
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
@@ -142,7 +142,7 @@ namespace NFCAccessSystem.Controllers
             return View(user);
         }
 
-        // POST: Home/Edit/5
+        // POST: WebInterface/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
@@ -182,7 +182,7 @@ namespace NFCAccessSystem.Controllers
             return View(user);
         }
 
-        // GET: Home/Delete/5
+        // GET: WebInterface/Delete/5
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
@@ -204,7 +204,7 @@ namespace NFCAccessSystem.Controllers
             return View(user);
         }
 
-        // POST: Home/Delete/5
+        // POST: WebInterface/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
