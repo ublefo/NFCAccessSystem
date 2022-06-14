@@ -149,13 +149,15 @@ namespace NFCAccessSystem.Controllers
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id,
-            [Bind("UserId,TagUid,Name,TotpSecret,Authorized,Admin,OfflineAuth")]
+            [Bind("UserId,TagUid,Name,TotpSecret,Authorized,Admin,OfflineAuth, MostRecentTotp")]
             User user)
         {
             if (id != user.UserId)
             {
                 return NotFound();
             }
+
+            var errors = ModelState.Values.SelectMany(v => v.Errors);
 
             if (ModelState.IsValid)
             {
