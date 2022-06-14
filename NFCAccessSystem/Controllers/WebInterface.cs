@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using NFCAccessSystem.Data;
 using OtpNet;
 using QRCoder;
+using NFCHelper;
 
 namespace NFCAccessSystem.Controllers
 {
@@ -59,10 +60,26 @@ namespace NFCAccessSystem.Controllers
             // authenticated action: create a session if one does not exist
             CreateSession();
 
+            // attempt to read UID from NFC tag
+            var myNFCHelper = new NFCHelper.NFCHelper();
+            string uidFromTagStr = myNFCHelper.ReadUid();
+
+            if (uidFromTagStr == null)
+            {
+                _logger.LogInformation("NFC Helper returned null, did not find a tag.");
+                ViewBag.NFCHint =
+                    "Did not find a valid tag, please place a tag on the reader and refresh the page to fill it in automatically. Alternatively, you can also type in the UID manually if you wish.";
+            }
+            else
+            {
+                ViewBag.NFCHint = "UID successfully read from the NFC tag.";
+            }
+
             // generate the TOTP key
             var user = new User()
             {
-                TotpSecret = Base32Encoding.ToString(KeyGeneration.GenerateRandomKey(20))
+                TotpSecret = Base32Encoding.ToString(KeyGeneration.GenerateRandomKey(20)),
+                TagUid = uidFromTagStr
             };
 
             const string label = "";
