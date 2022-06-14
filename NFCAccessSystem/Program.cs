@@ -313,6 +313,8 @@ else
 {
     // only client has db refresh api
     app.MapGet("/dbrefresh", () => RefreshDb(db));
+    // client mode does not have web ui
+    app.MapGet("/", () => $"Auth server is running in client mode and web interface is not available.");
 }
 
 // unlock api will always be available
