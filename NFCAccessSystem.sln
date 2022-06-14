@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpNFC", "SharpNFC\SharpN
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NFCHelper", "NFCHelper\NFCHelper.csproj", "{625C2360-6889-4243-9CC0-D2DC83EF8FA9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InputHelper", "InputHelper\InputHelper.csproj", "{683971DA-D66C-4D1B-8474-8EC20A1B760D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{625C2360-6889-4243-9CC0-D2DC83EF8FA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{625C2360-6889-4243-9CC0-D2DC83EF8FA9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{625C2360-6889-4243-9CC0-D2DC83EF8FA9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{683971DA-D66C-4D1B-8474-8EC20A1B760D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{683971DA-D66C-4D1B-8474-8EC20A1B760D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{683971DA-D66C-4D1B-8474-8EC20A1B760D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{683971DA-D66C-4D1B-8474-8EC20A1B760D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
