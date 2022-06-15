@@ -320,6 +320,9 @@ else
 // unlock api will always be available
 app.MapGet("/unlock", [Authorize(Roles = "Admin, User")]() => Results.Ok());
 
+// simple healthcheck
+app.MapGet("/healthcheck", () => Results.Ok());
+
 app.Run();
 
 // method to refresh the db
