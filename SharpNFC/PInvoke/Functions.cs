@@ -34,7 +34,7 @@ namespace SharpNFC.PInvoke
         //nfc_list_devices
         //NFC_EXPORT size_t nfc_list_devices(nfc_context *context, nfc_connstring connstrings[], size_t connstrings_len) ATTRIBUTE_NONNULL(1);
         [DllImport("libnfc", CallingConvention = CallingConvention.Cdecl)]
-        public static extern uint nfc_list_devices(IntPtr context, IntPtr connstrings, uint connstrings_len);
+        public static extern UIntPtr nfc_list_devices(IntPtr context, IntPtr connstrings, UIntPtr connstrings_len);
         //nfc_idle
         //NFC_EXPORT int nfc_idle(nfc_device *pnd);
         [DllImport("libnfc", CallingConvention = CallingConvention.Cdecl)]
@@ -52,15 +52,15 @@ namespace SharpNFC.PInvoke
         //nfc_initiator_select_passive_target
         //NFC_EXPORT int nfc_initiator_select_passive_target(nfc_device *pnd, const nfc_modulation nm, const uint8_t *pbtInitData, const size_t szInitData, nfc_target *pnt);
         [DllImport("libnfc", CallingConvention = CallingConvention.Cdecl)]
-        public static extern int nfc_initiator_select_passive_target(IntPtr pnd, nfc_modulation nm, [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 3)] byte[] pbtInitData, uint szInitData, IntPtr pnt);
+        public static extern int nfc_initiator_select_passive_target(IntPtr pnd, nfc_modulation nm, [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 3)] byte[] pbtInitData, UIntPtr szInitData, IntPtr pnt);
         //nfc_initiator_list_passive_targets
         //NFC_EXPORT int nfc_initiator_list_passive_targets(nfc_device *pnd, const nfc_modulation nm, nfc_target ant[], const size_t szTargets);
         [DllImport("libnfc", CallingConvention = CallingConvention.Cdecl)]
-        public static extern int nfc_initiator_list_passive_targets(IntPtr pnd, nfc_modulation nm, [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 3)]  nfc_target[] ant, uint szTargets);
+        public static extern int nfc_initiator_list_passive_targets(IntPtr pnd, nfc_modulation nm, [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 3)]  nfc_target[] ant, UIntPtr szTargets);
         //nfc_initiator_poll_target
         //NFC_EXPORT int nfc_initiator_poll_target(nfc_device *pnd, const nfc_modulation *pnmTargetTypes, const size_t szTargetTypes, const uint8_t uiPollNr, const uint8_t uiPeriod, nfc_target *pnt);
         [DllImport("libnfc", CallingConvention = CallingConvention.Cdecl)]
-        public static extern int nfc_initiator_poll_target(IntPtr pnd, [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 2)] nfc_modulation[] pnmTargetTypes, uint szTargetTypes, byte uiPollNr, byte uiPeriod, out nfc_target pnt);
+        public static extern int nfc_initiator_poll_target(IntPtr pnd, [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 2)] nfc_modulation[] pnmTargetTypes, UIntPtr szTargetTypes, byte uiPollNr, byte uiPeriod, out nfc_target pnt);
 
         //NFC_EXPORT int nfc_initiator_select_dep_target(nfc_device *pnd, nfc_dep_mode ndm, nfc_baud_rate nbr, nfc_dep_info *pndiInitiator, nfc_target *pnt, int timeout);
         [DllImport("libnfc", CallingConvention = CallingConvention.Cdecl)]
@@ -73,16 +73,16 @@ namespace SharpNFC.PInvoke
         public static extern int nfc_initiator_deselect_target(IntPtr pnd);
         //NFC_EXPORT int nfc_initiator_transceive_bytes(nfc_device *pnd, uint8_t *pbtTx, size_t szTx, uint8_t *pbtRx, size_t szRx, int timeout);
         [DllImport("libnfc", CallingConvention = CallingConvention.Cdecl)]
-        public static extern int nfc_initiator_transceive_bytes(IntPtr pnd, byte[] pbtTx, uint szTx, byte[] pbtRx, uint szRx, int timeout);
+        public static extern int nfc_initiator_transceive_bytes(IntPtr pnd, byte[] pbtTx, UIntPtr szTx, byte[] pbtRx, UIntPtr szRx, int timeout);
         //NFC_EXPORT int nfc_initiator_transceive_bits(nfc_device *pnd, uint8_t *pbtTx, size_t szTxBits, uint8_t *pbtTxPar, uint8_t *pbtRx, size_t szRx, uint8_t *pbtRxPar);
         [DllImport("libnfc", CallingConvention = CallingConvention.Cdecl)]
-        public static extern int nfc_initiator_transceive_bits(IntPtr pnd, byte[] pbtTx, uint szTxBits, byte[] pbtTxPar, byte[] pbtRx, uint szRx, byte[] pbtRxPar);
+        public static extern int nfc_initiator_transceive_bits(IntPtr pnd, byte[] pbtTx, UIntPtr szTxBits, byte[] pbtTxPar, byte[] pbtRx, UIntPtr szRx, byte[] pbtRxPar);
         //NFC_EXPORT int nfc_initiator_transceive_bytes_timed(nfc_device *pnd, uint8_t *pbtTx, size_t szTx, uint8_t *pbtRx, size_t szRx, uint32_t *cycles);
         [DllImport("libnfc", CallingConvention = CallingConvention.Cdecl)]
-        public static extern int nfc_initiator_transceive_bytes_timed(IntPtr pnd, byte[] pbtTx, uint szTx, byte[] pbtRx, uint szRx, ref uint cycles);
+        public static extern int nfc_initiator_transceive_bytes_timed(IntPtr pnd, byte[] pbtTx, UIntPtr szTx, byte[] pbtRx, UIntPtr szRx, ref uint cycles);
         //NFC_EXPORT int nfc_initiator_transceive_bits_timed(nfc_device *pnd, uint8_t *pbtTx, size_t szTxBits, uint8_t *pbtTxPar, uint8_t *pbtRx, size_t szRx, uint8_t *pbtRxPar, uint32_t *cycles);
         [DllImport("libnfc", CallingConvention = CallingConvention.Cdecl)]
-        public static extern int nfc_initiator_transceive_bits_timed(IntPtr pnd, byte[] pbtTx, uint szTxBits, byte[] pbtTxPar, byte[] pbtRx, uint szRx, byte[] pbtRxPar, ref uint cycles);
+        public static extern int nfc_initiator_transceive_bits_timed(IntPtr pnd, byte[] pbtTx, UIntPtr szTxBits, byte[] pbtTxPar, byte[] pbtRx, UIntPtr szRx, byte[] pbtRxPar, ref uint cycles);
         //NFC_EXPORT int nfc_initiator_target_is_present(nfc_device *pnd, nfc_target *pnt);
         [DllImport("libnfc", CallingConvention = CallingConvention.Cdecl)]
         public static extern int nfc_initiator_target_is_present(IntPtr pnd, IntPtr pnt);
@@ -90,19 +90,19 @@ namespace SharpNFC.PInvoke
         /* NFC target: act as tag (i.e. MIFARE Classic) or NFC target device. */
         //NFC_EXPORT int nfc_target_init(nfc_device *pnd, nfc_target *pnt, uint8_t *pbtRx, size_t szRx, int timeout);
         [DllImport("libnfc", CallingConvention = CallingConvention.Cdecl)]
-        public static extern int nfc_target_init(IntPtr pnd, IntPtr pnt, byte[] pbtRx, uint szRx, int timeout);
+        public static extern int nfc_target_init(IntPtr pnd, IntPtr pnt, byte[] pbtRx, UIntPtr szRx, int timeout);
         //NFC_EXPORT int nfc_target_send_bytes(nfc_device *pnd, uint8_t *pbtTx, size_t szTx, int timeout);
         [DllImport("libnfc", CallingConvention = CallingConvention.Cdecl)]
-        public static extern int nfc_target_send_bytes(IntPtr pnd, byte[] pbtTx, uint szTx, int timeout);
+        public static extern int nfc_target_send_bytes(IntPtr pnd, byte[] pbtTx, UIntPtr szTx, int timeout);
         //NFC_EXPORT int nfc_target_receive_bytes(nfc_device *pnd, uint8_t *pbtRx, size_t szRx, int timeout);
         [DllImport("libnfc", CallingConvention = CallingConvention.Cdecl)]
-        public static extern int nfc_target_receive_bytes(IntPtr pnd, byte[] pbtRx, uint szRx, int timeout);
+        public static extern int nfc_target_receive_bytes(IntPtr pnd, byte[] pbtRx, UIntPtr szRx, int timeout);
         //NFC_EXPORT int nfc_target_send_bits(nfc_device *pnd, uint8_t *pbtTx, size_t szTxBits, uint8_t *pbtTxPar);
         [DllImport("libnfc", CallingConvention = CallingConvention.Cdecl)]
-        public static extern int nfc_target_send_bits(IntPtr pnd, byte[] pbtTx, uint szTxBits, byte[] pbtTxPar);
+        public static extern int nfc_target_send_bits(IntPtr pnd, byte[] pbtTx, UIntPtr szTxBits, byte[] pbtTxPar);
         //NFC_EXPORT int nfc_target_receive_bits(nfc_device *pnd, uint8_t *pbtRx, size_t szRx, uint8_t *pbtRxPar);
         [DllImport("libnfc", CallingConvention = CallingConvention.Cdecl)]
-        public static extern int nfc_target_receive_bits(IntPtr pnd, byte[] pbtRx, uint szRx, byte[] pbtRxPar);
+        public static extern int nfc_target_receive_bits(IntPtr pnd, byte[] pbtRx, UIntPtr szRx, byte[] pbtRxPar);
 
         /* Error reporting */
         //NFC_EXPORT char *nfc_strerror(nfc_device *pnd);
@@ -110,7 +110,7 @@ namespace SharpNFC.PInvoke
         public static extern string nfc_strerror(IntPtr pnd);
         //NFC_EXPORT int nfc_strerror_r(nfc_device *pnd, char *buf, size_t buflen);
         [DllImport("libnfc", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int nfc_strerror_r(IntPtr pnd, string buf, uint buflen);
+        public static extern int nfc_strerror_r(IntPtr pnd, string buf, UIntPtr buflen);
         //NFC_EXPORT void nfc_perror(nfc_device *pnd, char *s);
         [DllImport("libnfc", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         public static extern void nfc_perror(IntPtr pnd, string s);
@@ -143,19 +143,19 @@ namespace SharpNFC.PInvoke
         /* Misc. functions */
         //NFC_EXPORT void iso14443a_crc(uint8_t *pbtData, size_t szLen, uint8_t *pbtCrc);
         [DllImport("libnfc", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void iso14443a_crc(byte[] pbtData, uint szLen, byte[] pbtCrc);
+        public static extern void iso14443a_crc(byte[] pbtData, UIntPtr szLen, byte[] pbtCrc);
         //NFC_EXPORT void iso14443a_crc_append(uint8_t *pbtData, size_t szLen);
         [DllImport("libnfc", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void iso14443a_crc_append(byte[] pbtData, uint szLen);
+        public static extern void iso14443a_crc_append(byte[] pbtData, UIntPtr szLen);
         //NFC_EXPORT void iso14443b_crc(uint8_t *pbtData, size_t szLen, uint8_t *pbtCrc);
         [DllImport("libnfc", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void iso14443b_crc(byte[] pbtData, uint szLen, byte[] pbtCrc);
+        public static extern void iso14443b_crc(byte[] pbtData, UIntPtr szLen, byte[] pbtCrc);
         //NFC_EXPORT void iso14443b_crc_append(uint8_t *pbtData, size_t szLen);
         [DllImport("libnfc", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void iso14443b_crc_append(byte[] pbtData, uint szLen);
+        public static extern void iso14443b_crc_append(byte[] pbtData, UIntPtr szLen);
         //NFC_EXPORT uint8_t *iso14443a_locate_historical_bytes(uint8_t *pbtAts, size_t szAts, size_t *pszTk);
         [DllImport("libnfc", CallingConvention = CallingConvention.Cdecl)]
-        public static extern byte[] iso14443a_locate_historical_bytes(byte[] pbtAts, uint szAts, UIntPtr pszTk);
+        public static extern byte[] iso14443a_locate_historical_bytes(byte[] pbtAts, UIntPtr szAts, UIntPtr pszTk);
 
         //NFC_EXPORT void nfc_free(void *p);
         [DllImport("libnfc", CallingConvention = CallingConvention.Cdecl)]

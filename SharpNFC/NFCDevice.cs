@@ -33,7 +33,7 @@ namespace SharpNFC
             //var targetPtr = Marshal.AllocHGlobal(Marshal.SizeOf(target));
 
             var modArr = modulation.ToArray();
-            var intResult = Functions.nfc_initiator_poll_target(DevicePointer, modArr, (uint)modArr.Length, poolCount, poolingInterval, out target);
+            var intResult = Functions.nfc_initiator_poll_target(DevicePointer, modArr, new UIntPtr((uint)modArr.Length), poolCount, poolingInterval, out target);
             nfc_target = target;
 
             return intResult;
@@ -51,7 +51,7 @@ namespace SharpNFC
                 nm.nbr = nfc_baud_rate.NBR_106;
 
                 Marshal.StructureToPtr<nfc_target>(target, targetPtr, false);
-                Functions.nfc_initiator_select_passive_target(DevicePointer, nm, null, 0, targetPtr);
+                Functions.nfc_initiator_select_passive_target(DevicePointer, nm, null, new UIntPtr(0), targetPtr);
 
                 var updatedTarget = Marshal.PtrToStructure<nfc_target>(targetPtr);
                 return updatedTarget;

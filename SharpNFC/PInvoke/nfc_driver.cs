@@ -55,7 +55,7 @@ namespace SharpNFC.PInvoke
         initiator_transceive_bits_Delegate initiator_transceive_bits;
 
         ////int (*initiator_transceive_bytes_timed)(struct nfc_device *pnd, const uint8_t *pbtTx, const size_t szTx, uint8_t *pbtRx, const size_t szRx, uint32_t *cycles);
-        public delegate int initiator_transceive_bytes_timed_Delegate(ref nfc_device pnd, ref Byte pbtTx, UIntPtr szTx, ref Byte pbtRx, uint szRx, UIntPtr cycles);
+        public delegate int initiator_transceive_bytes_timed_Delegate(ref nfc_device pnd, ref Byte pbtTx, UIntPtr szTx, ref Byte pbtRx, UIntPtr szRx, UIntPtr cycles);
         initiator_transceive_bytes_timed_Delegate initiator_transceive_bytes_timed;
 
         ////int (*initiator_transceive_bits_timed)(struct nfc_device *pnd, const uint8_t *pbtTx, const size_t szTxBits, const uint8_t *pbtTxPar, uint8_t *pbtRx, uint8_t *pbtRxPar, uint32_t *cycles);

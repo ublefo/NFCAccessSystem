@@ -29,7 +29,7 @@ namespace SharpNFC
         {
             int someUnknownCount = 8;
             IntPtr connectionStringsPointer = Marshal.AllocHGlobal(Constants.NFC_BUFSIZE_CONNSTRING * someUnknownCount);
-            var devicesCount = Functions.nfc_list_devices(contextPointer, connectionStringsPointer, (uint)someUnknownCount);
+            var devicesCount = Functions.nfc_list_devices(contextPointer, connectionStringsPointer, new UIntPtr((uint)someUnknownCount)).ToUInt32();
 
             var devices = new List<string>();
             for (int i = 0; i < devicesCount; i++)
