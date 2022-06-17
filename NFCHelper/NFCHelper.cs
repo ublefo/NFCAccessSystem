@@ -30,13 +30,13 @@ public class NFCHelper
         }
 
         var nfcTarget = NfcReader.SelectPassive14443ATarget();
-        if (nfcTarget.nti.szUidLen == 0)
+        if (nfcTarget.nti.szUidLen.ToUInt64() == 0)
         {
             // Console.WriteLine("No card found.");
             return null;
         }
 
-        byte[] uidArray = nfcTarget.nti.abtUid[4 .. 8];
+        var uidArray = nfcTarget.nti.abtUid[0 .. 4];
         Console.WriteLine("UID is: " + BitConverter.ToString(uidArray));
         return Convert.ToHexString(uidArray, 0, 4);
     }
