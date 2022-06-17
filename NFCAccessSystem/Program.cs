@@ -5,9 +5,9 @@ using idunno.Authentication.Basic;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 
+var currentAppConfig = new AppConfig("server-config.json");
 var db = new AccessSystemContext();
 Console.WriteLine($"Database path: {db.DbPath}.");
-var currentAppConfig = new AppConfig("server-config.json");
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Logging.ClearProviders();
@@ -83,9 +83,11 @@ if (currentAppConfig.IsClient)
                     }
 
                     Console.WriteLine(totpAuthSuccess ? "TOTP auth success." : "TOTP auth failed.");
+                    Console.WriteLine(authenticatingUser.OfflineAuth
+                        ? "Offline Access enabled."
+                        : "Offline Access disabled.");
 
-
-                    if (totpAuthSuccess)
+                    if (totpAuthSuccess && authenticatingUser.OfflineAuth)
                     {
                         Console.WriteLine("Auth Successful, setting claims.");
                         var userRole = userIsAdmin ? "Admin" : "User";
@@ -103,7 +105,8 @@ if (currentAppConfig.IsClient)
                     }
                     else
                     {
-                        Console.WriteLine("Basic auth: auth failed.");
+                        Console.WriteLine(
+                            "Basic auth (offline): auth failed.");
                     }
 
                     Console.WriteLine("---------- Basic auth flow finished. ----------");
@@ -276,14 +279,6 @@ builder.Services.AddSession(options =>
 });
 
 var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/WebInterface/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
-}
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
