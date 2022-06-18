@@ -1,4 +1,5 @@
 {
   "is_client": false,
+  "db_path": "/opt/acs/acs.db",
   "db_access_key": "Jek6ha1dEedaex3icaeph7XoCie3iokudaNgai6r"
 }

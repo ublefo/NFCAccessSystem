@@ -4,28 +4,39 @@ using System.Security.Claims;
 using idunno.Authentication.Basic;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using System.Threading;
+using NFCAccessSystem;
 
-var currentAppConfig = new AppConfig("server-config.json");
-var db = new AccessSystemContext();
-Console.WriteLine($"Database path: {db.DbPath}.");
+var serverConfig = new AppConfig("server-config.json");
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
-builder.Services.AddDbContext<AccessSystemContext>();
+
+var options = new DbContextOptionsBuilder<AccessSystemContext>()
+    .UseSqlite($"Data Source={serverConfig.DbPath}")
+    .Options;
+
+AccessSystemContext db = new AccessSystemContext(options);
+
+builder.Services.AddDbContext<AccessSystemContext>(options =>
+    options.UseSqlite($"Data Source={serverConfig.DbPath}"));
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
 var clientTempTotpList = new List<UserTotpPair>();
 
 // auth setup
-if (currentAppConfig.IsClient)
+if (serverConfig.IsClient)
 {
     // client setup, db read-only
     builder.Services.AddAuthentication(BasicAuthenticationDefaults.AuthenticationScheme)
         .AddBasic(options =>
         {
             options.Realm = "Basic Authentication";
+            // ONLY ALLOW HTTP IN CLIENT MODE
+            options.AllowInsecureProtocol = true;
             options.Events = new BasicAuthenticationEvents
             {
                 OnValidateCredentials = context =>
@@ -140,7 +151,7 @@ else
 
                     // db access (special user)
                     if (context.Username == "DbSync" &&
-                        context.Password == currentAppConfig.DbAccessKey)
+                        context.Password == serverConfig.DbAccessKey)
                     {
                         Console.WriteLine("DbSync access granted, setting claims.");
                         var claims = new[]
@@ -278,9 +289,13 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
+// bg one-off thread to run one simple query to mitigate first-access latency
+// alternative is compiled query which is a lot more complicated to implement
+Thread startupQuery = new Thread(() => StartupQueryThread.LaunchQuery(db));
+startupQuery.Start();
+
 var app = builder.Build();
 
-app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
@@ -290,7 +305,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 // only enable db download and web management interface if acting as server
-if (!currentAppConfig.IsClient)
+if (!serverConfig.IsClient)
 {
     // web ui
     app.MapControllerRoute(
@@ -300,7 +315,7 @@ if (!currentAppConfig.IsClient)
 
     // db download
     app.MapGet("/dbsync", [Authorize(Roles = "DbAccess")]() => Results.File(
-        db.DbPath, "application/octet-stream",
+        serverConfig.DbPath, "application/octet-stream",
         fileDownloadName: "acs.sqlite"
     ));
 }

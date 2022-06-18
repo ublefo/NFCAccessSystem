@@ -44,16 +44,9 @@ public class AccessSystemContext : DbContext
 
     public string DbPath { get; }
 
-    public AccessSystemContext()
+    public AccessSystemContext(DbContextOptions<AccessSystemContext> options) : base(options)
     {
-        var path = "/opt/acs";
-        DbPath = System.IO.Path.Join(path, "acs.db");
     }
-
-    // The following configures EF to create a Sqlite database file in the
-    // special "local" folder for your platform.
-    protected override void OnConfiguring(DbContextOptionsBuilder options)
-        => options.UseSqlite($"Data Source={DbPath}");
 
     // The following configures EF to create a Sqlite database file in the
     // special "local" folder for your platform.

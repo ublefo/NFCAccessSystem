@@ -6,6 +6,16 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <PublishSingleFile>true</PublishSingleFile>
     </PropertyGroup>
+    
+    <PropertyGroup Condition="'$(Configuration)'=='Release'">
+        <DebugSymbols>False</DebugSymbols>
+        <DebugType>None</DebugType>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Content Update="appsettings*.json" CopyToPublishDirectory="Never" />
+        <Content Update="server-config.json" CopyToPublishDirectory="Never" />
+    </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="idunno.Authentication.Basic" Version="2.2.3" />
