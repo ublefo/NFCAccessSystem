@@ -10,6 +10,7 @@ public class AppConfig
     public string KeyboardId { get; }
     public Uri ServerAddress { get; }
     public Uri LocalServerAddress { get; }
+    public string LocalServerDbPath { get; }
     public string DbAccessKey { get; }
 
     private class ConfigFileModel
@@ -20,6 +21,9 @@ public class AppConfig
         [JsonPropertyName("local_server_address")]
         public string LocalServerAddress { get; set; }
 
+        [JsonPropertyName("local_server_db_path")]
+        public string LocalServerDbPath { get; set; }
+
         [JsonPropertyName("db_access_key")] public string DbAccessKey { get; set; }
     }
 
@@ -29,6 +33,7 @@ public class AppConfig
         KeyboardId = _fileModel.KeyboardId;
         ServerAddress = new Uri(_fileModel.ServerAddress);
         LocalServerAddress = new Uri(_fileModel.LocalServerAddress);
+        LocalServerDbPath = _fileModel.LocalServerDbPath;
         DbAccessKey = _fileModel.DbAccessKey;
     }
 }

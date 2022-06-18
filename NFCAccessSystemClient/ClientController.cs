@@ -53,18 +53,21 @@ public class ClientController
         {
             Console.WriteLine("----- Auth State -----");
 
-            var inputReader = new InputReader(controller.KeyboardEventDevicePath);
-            var pinPadReader = new PinPadReader(inputReader);
+            string totp = "";
 
-            Console.WriteLine("Reading TOTP: ");
-            var totp = pinPadReader.ReadPin();
+            using (var inputReader = new InputReader(controller.KeyboardEventDevicePath))
+            {
+                var pinPadReader = new PinPadReader(inputReader);
+                Console.WriteLine("Reading TOTP: ");
+                totp = pinPadReader.ReadPin();
+            }
 
             // HACK: BYPASS CERT VALIDATION, GET RID OF THIS ASAP
             // https://stackoverflow.com/a/23535112
-            ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) =>
-                certificate.Issuer == "CN=localhost";
+            // ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) =>
+            //    certificate.Issuer == "CN=localhost";
 
-            // TODO: check if server is online
+            // server selection
             WebRequest remoteServerHealthCheckRequest =
                 WebRequest.Create(controller.ClientConfig.ServerAddress + "healthcheck");
             WebRequest localServerHealthCheckRequest =
@@ -168,6 +171,9 @@ public class ClientController
                         break;
                     case HttpStatusCode.Unauthorized:
                         Console.WriteLine("Auth failed.");
+                        break;
+                    default:
+                        Console.WriteLine(unlockResponse.StatusCode);
                         break;
                 }
             }

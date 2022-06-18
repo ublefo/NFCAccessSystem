@@ -2,5 +2,6 @@
   "keyboard_id": "",
   "server_address": "",
   "local_server_address": "",
+  "local_server_db_path": "",
   "db_access_key": ""
 }
