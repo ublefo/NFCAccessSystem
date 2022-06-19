@@ -13,24 +13,30 @@ public class ClientController
         KeyboardEventDevicePath = "/dev/input/by-id/" + ClientConfig.KeyboardId;
     }
 
-    public void Run()
+    public void Run(GPIOHelper.GPIOHelper gpioHelper)
     {
-        IState currentState = new IdleState(this);
-        while (true) currentState = currentState.NextState(this);
+        IState currentState = new IdleState(this, gpioHelper);
+        while (true) currentState = currentState.NextState(this, gpioHelper);
     }
 
     interface IState
     {
-        IState NextState(ClientController controller);
+        IState NextState(ClientController controller, GPIOHelper.GPIOHelper gpioHelper);
     }
 
     class IdleState : IState
     {
         string Uid { get; set; }
 
-        public IdleState(ClientController controller)
+        public IdleState(ClientController controller, GPIOHelper.GPIOHelper gpioHelper)
         {
             Console.WriteLine("----- Idle State -----");
+
+            // if GPIO helper is configured reset LED status (blue = waiting)
+            if (gpioHelper != null)
+            {
+                gpioHelper.StatusLedUpdate("blue");
+            }
 
             var nfcHelper = new NFCHelper.NFCHelper();
 
@@ -39,19 +45,31 @@ public class ClientController
                 Thread.Sleep(200);
                 Uid = nfcHelper.ReadUid();
             } while (Uid == null);
+
+            // if GPIO helper is configured trigger buzzer
+            if (gpioHelper != null)
+            {
+                gpioHelper.BuzzerOneShot();
+            }
         }
 
-        IState IState.NextState(ClientController controller)
+        IState IState.NextState(ClientController controller, GPIOHelper.GPIOHelper gpioHelper)
         {
-            return new AuthState(controller, Uid);
+            return new AuthState(controller, gpioHelper, Uid);
         }
     }
 
     class AuthState : IState
     {
-        public AuthState(ClientController controller, string uid)
+        public AuthState(ClientController controller, GPIOHelper.GPIOHelper gpioHelper, string uid)
         {
             Console.WriteLine("----- Auth State -----");
+
+            // if GPIO helper is configured set LED to cyan (pinentry)
+            if (gpioHelper != null)
+            {
+                gpioHelper.StatusLedUpdate("cyan");
+            }
 
             string totp = "";
 
@@ -59,7 +77,13 @@ public class ClientController
             {
                 var pinPadReader = new PinPadReader(inputReader);
                 Console.WriteLine("Reading TOTP: ");
-                totp = pinPadReader.ReadPin();
+                totp = pinPadReader.ReadPin(gpioHelper);
+            }
+
+            // if GPIO helper is configured set LED to white (authenticating)
+            if (gpioHelper != null)
+            {
+                gpioHelper.StatusLedUpdate("white");
             }
 
             // HACK: BYPASS CERT VALIDATION, GET RID OF THIS ASAP
@@ -167,28 +191,67 @@ public class ClientController
                 {
                     case HttpStatusCode.OK:
                         Console.WriteLine("Auth passed, unlocking.");
-                        // TODO: GPIO unlock
+
+                        // if GPIO helper is configured, unlock and play long beep, LED to green
+                        if (gpioHelper != null)
+                        {
+                            gpioHelper.StatusLedUpdate("green");
+                            gpioHelper.BuzzerCustomLength(1500);
+                            gpioHelper.ServoUnlock();
+                        }
+
                         break;
                     case HttpStatusCode.Unauthorized:
                         Console.WriteLine("Auth failed.");
+                        // if GPIO helper is configured, play three short beeps, set led to red
+                        if (gpioHelper != null)
+                        {
+                            gpioHelper.StatusLedUpdate("red");
+                            for (int i = 0; i < 3; i++)
+                            {
+                                gpioHelper.BuzzerOneShot();
+                                Thread.Sleep(500);
+                            }
+                        }
+
                         break;
                     default:
                         Console.WriteLine(unlockResponse.StatusCode);
+                        // if GPIO helper is configured, play three long beeps, set led to magenta
+                        if (gpioHelper != null)
+                        {
+                            gpioHelper.StatusLedUpdate("magenta");
+                            for (int i = 0; i < 3; i++)
+                            {
+                                gpioHelper.BuzzerCustomLength(1500);
+                                Thread.Sleep(200);
+                            }
+                        }
+
                         break;
                 }
             }
             else
             {
+                // if GPIO helper is configured, play three long beeps, set led to magenta
+                if (gpioHelper != null)
+                {
+                    gpioHelper.StatusLedUpdate("magenta");
+                    for (int i = 0; i < 3; i++)
+                    {
+                        gpioHelper.BuzzerCustomLength(1500);
+                        Thread.Sleep(200);
+                    }
+                }
+
                 Console.WriteLine("Connection failed.");
             }
         }
 
 
-        IState IState.NextState(ClientController controller)
+        IState IState.NextState(ClientController controller, GPIOHelper.GPIOHelper gpioHelper)
         {
-            return new IdleState(controller);
+            return new IdleState(controller, gpioHelper);
         }
     }
 }
-
-// bg thread: periodical db refresh (on a timer)        

@@ -11,7 +11,7 @@ public class PinPadReader
         Reader = reader;
     }
 
-    public string ReadPin()
+    public string ReadPin(GPIOHelper.GPIOHelper gpioHelper)
     {
         var result = "";
 
@@ -21,6 +21,12 @@ public class PinPadReader
             // only respond to keyup events
             if (keyPress.State == KeyState.KeyUp)
             {
+                // if GPIO helper is configured trigger buzzer
+                if (gpioHelper != null)
+                {
+                    gpioHelper.BuzzerOneShot();
+                }
+
                 switch (keyPress.Code)
                 {
                     case EventCode.Kp0:

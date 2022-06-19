@@ -14,6 +14,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\GPIOHelper\GPIOHelper.csproj" />
       <ProjectReference Include="..\InputHelper\InputHelper.csproj" />
       <ProjectReference Include="..\NFCHelper\NFCHelper.csproj" />
     </ItemGroup>

@@ -6,12 +6,11 @@ namespace NFCAccessSystemClient;
 
 public class HelperThread
 {
-    public static void HealthCheckThread(AppConfig clientConfig)
+    public static void HealthCheckThread(AppConfig clientConfig, GPIOHelper.GPIOHelper gpioHelper)
     {
         while (true)
         {
             // set up healthcheck request
-
 
             // HACK: BYPASS CERT VALIDATION, GET RID OF THIS ASAP
             // https://stackoverflow.com/a/23535112
@@ -64,7 +63,11 @@ public class HelperThread
                 remoteSvrOkay = false;
             }
 
-            // TODO: remote server LED
+            // set remote server LED if GPIO helper is configured
+            if (gpioHelper != null)
+            {
+                gpioHelper.RemoteStatusLedUpdate(remoteSvrOkay);
+            }
 
 
             // remote server bad, check local server
@@ -99,21 +102,18 @@ public class HelperThread
                 }
             }
 
-            // TODO: local server LED
-
-
             Thread.Sleep(2000);
         }
     }
 
 
-    public static void DbSyncThread(AppConfig clientConfig)
+    public static void DbSyncThread(AppConfig clientConfig, GPIOHelper.GPIOHelper gpioHelper)
     {
         while (true)
         {
             try
             {
-                DbSync(clientConfig);
+                DbSync(clientConfig, gpioHelper);
             }
             catch (Exception e)
             {
@@ -125,7 +125,7 @@ public class HelperThread
     }
 
 
-    public static void DbSync(AppConfig clientConfig)
+    public static void DbSync(AppConfig clientConfig, GPIOHelper.GPIOHelper gpioHelper)
     {
         String LocalSvrDbPath = clientConfig.LocalServerDbPath;
         String TmpDbPath = "/tmp/acs-new.db";
@@ -225,6 +225,11 @@ public class HelperThread
             if (localServerHealthCheckResponse.StatusCode == HttpStatusCode.OK)
             {
                 Console.WriteLine("Database reload successful.");
+                // trigger sync indicator LED if GPIO helper is configured
+                if (gpioHelper != null)
+                {
+                    gpioHelper.SyncLedTrig();
+                }
             }
             else
             {
