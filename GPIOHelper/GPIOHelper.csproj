@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)'=='Release'">
+        <DebugSymbols>False</DebugSymbols>
+        <DebugType>None</DebugType>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="Iot.Device.Bindings" Version="2.1.0"/>
+        <PackageReference Include="System.Device.Gpio" Version="2.1.0"/>
+    </ItemGroup>
+
+</Project>
