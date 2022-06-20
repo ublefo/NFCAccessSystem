@@ -13,11 +13,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 
-var options = new DbContextOptionsBuilder<AccessSystemContext>()
+var dbContextOptions = new DbContextOptionsBuilder<AccessSystemContext>()
     .UseSqlite($"Data Source={serverConfig.DbPath}")
     .Options;
 
-AccessSystemContext db = new AccessSystemContext(options);
 
 builder.Services.AddDbContext<AccessSystemContext>(options =>
     options.UseSqlite($"Data Source={serverConfig.DbPath}"));
@@ -26,10 +25,12 @@ builder.Services.AddDbContext<AccessSystemContext>(options =>
 builder.Services.AddControllersWithViews();
 
 var clientTempTotpList = new List<UserTotpPair>();
+AccessSystemContext clientModeDb = null;
 
 // auth setup
 if (serverConfig.IsClient)
 {
+    clientModeDb = new AccessSystemContext(dbContextOptions);
     // client setup, db read-only
     builder.Services.AddAuthentication(BasicAuthenticationDefaults.AuthenticationScheme)
         .AddBasic(options =>
@@ -48,13 +49,22 @@ if (serverConfig.IsClient)
                     Console.WriteLine("ID: " + context.Username);
                     Console.WriteLine("TOTP Provided: " + context.Password);
 
+                    clientModeDb = new AccessSystemContext(dbContextOptions);
+
                     // find user by UID
-                    User authenticatingUser = db.Users.FirstOrDefault(u => u.TagUid == context.Username);
+                    User authenticatingUser = clientModeDb.Users.FirstOrDefault(u => u.TagUid == context.Username);
 
                     // if no user found, return
                     if (authenticatingUser == null)
                     {
                         Console.WriteLine("Basic auth (TOTP flow): no user found.");
+                        return Task.CompletedTask;
+                    }
+
+                    // if not authorized, return
+                    if (!authenticatingUser.Authorized)
+                    {
+                        Console.WriteLine("Basic auth (TOTP flow): user not authorized.");
                         return Task.CompletedTask;
                     }
 
@@ -142,6 +152,8 @@ else
                     bool totpAuthSuccess = false;
                     bool userIsAdmin = false;
 
+                    AccessSystemContext db = new AccessSystemContext(dbContextOptions);
+
                     bool UserExists(int id)
                     {
                         return (db.Users?.Any(e => e.UserId == id)).GetValueOrDefault();
@@ -208,6 +220,13 @@ else
                         if (authenticatingUser == null)
                         {
                             Console.WriteLine("Basic auth (TOTP flow): no user found.");
+                            return Task.CompletedTask;
+                        }
+
+                        // if not authorized, return
+                        if (!authenticatingUser.Authorized)
+                        {
+                            Console.WriteLine("Basic auth (TOTP flow): user not authorized.");
                             return Task.CompletedTask;
                         }
 
@@ -291,8 +310,8 @@ builder.Services.AddSession(options =>
 
 // bg one-off thread to run one simple query to mitigate first-access latency
 // alternative is compiled query which is a lot more complicated to implement
-Thread startupQuery = new Thread(() => StartupQueryThread.LaunchQuery(db));
-startupQuery.Start();
+//Thread startupQuery = new Thread(() => StartupQueryThread.LaunchQuery(db));
+//startupQuery.Start();
 
 var app = builder.Build();
 
@@ -322,7 +341,7 @@ if (!serverConfig.IsClient)
 else
 {
     // only client has db refresh api
-    app.MapGet("/dbrefresh", () => RefreshDb(db));
+    app.MapGet("/dbrefresh", () => RefreshDb(clientModeDb));
     // client mode does not have web ui
     app.MapGet("/", () => $"Auth server is running in client mode and web interface is not available.");
 }

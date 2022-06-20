@@ -82,7 +82,7 @@ namespace NFCAccessSystem.Controllers
                 TagUid = uidFromTagStr
             };
 
-            const string label = "";
+            const string label = "User";
             const string issuer = "NFCAccessSystem";
             var qrCodeUri =
                 $"otpauth://totp/{Uri.EscapeDataString(label)}?secret={user.TotpSecret}&issuer={Uri.EscapeDataString(issuer)}";
@@ -125,7 +125,7 @@ namespace NFCAccessSystem.Controllers
 
 
             // return the same QR code again
-            const string label = "";
+            const string label = "User";
             const string issuer = "NFCAccessSystem";
             var qrCodeUri =
                 $"otpauth://totp/{Uri.EscapeDataString(label)}?secret={user.TotpSecret}&issuer={Uri.EscapeDataString(issuer)}";
